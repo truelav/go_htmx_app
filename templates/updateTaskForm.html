@@ -1,15 +1,18 @@
-{{ define "addNewTaskForm" }}
+{{ define "updateTaskForm" }}
     <form>
         <div class="row">
             <div class="col">
-                <input type="text" name="task" class="form-control"/>
+                <input type="text" name="task" value="{{ .Task }}" class="form-control"/>
+            </div>
+            <div>
+                <input type="checkbox" name="done" {{ if .Done }} checked  {{ end }} />
             </div>
             <div class="col mt-4">
                 <button 
                     class="btn btn-primary"
                     hx-post="/tasks"
                     hx-target="#todoList"
-                >Add Task</button>
+                >Save Task</button>
             </div>
         </div>
     </form>

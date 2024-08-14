@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
@@ -132,4 +133,28 @@ func addNewTask(w http.ResponseWriter, r *http.Request) {
 
 	todos, _ := getTasks()
 	tmpl.ExecuteTemplate(w, "todoList", todos)
+}
+
+func editTask(w http.ResponseWriter, r *http.Request) {
+	task := r.FormValue("task")
+	taskId := r.FormValue("id")
+	done := r.FormValue("done")
+	taskIsDone := convertDoneToBool(done)
+
+	fmt.Println(task, taskId, taskIsDone)
+}
+
+func convertDoneToBool(isDone string) bool {
+	var taskIsDone bool
+
+	switch strings.ToLower(isDone) {
+	case "yes", "on":
+		taskIsDone = true
+	case "no", "off":
+		taskIsDone = false
+	default:
+		taskIsDone = false
+	}
+
+	return taskIsDone
 }

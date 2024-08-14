@@ -34,7 +34,6 @@ func initDB() {
 		log.Fatal("Error with .env loading", errENV)
 	}
 	db_connection_string := os.Getenv("DB_CONNECTION_STRING")
-	// fmt.Println(os.Getenv("DB_CONNECTION_STRING"))
 
 	db, err = sql.Open("postgres", db_connection_string)
 
@@ -57,7 +56,12 @@ func main() {
 	defer db.Close()
 
 	gRouter.HandleFunc("/", homeHandler)
+
 	gRouter.HandleFunc("/tasks", fetchTasks).Methods("GET")
+
+	gRouter.HandleFunc("/tasks", addNewTask).Methods("POST")
+
+	gRouter.HandleFunc("/getTaskForm", getTaskForm)
 
 	http.ListenAndServe(":8000", gRouter)
 }
@@ -72,7 +76,6 @@ func fetchTasks(w http.ResponseWriter, r *http.Request) {
 		log.Fatal("Error fetching tasks: ", errDB)
 	}
 
-	// fmt.Println(data)
 	err := tmpl.ExecuteTemplate(w, "todoList", todos)
 
 	if err != nil {
@@ -104,6 +107,29 @@ func getTasks() ([]Task, error) {
 		tasks = append(tasks, task)
 	}
 
-	// fmt.Println(tasks)
 	return tasks, errDB
+}
+
+func getTaskForm(w http.ResponseWriter, r *http.Request) {
+	tmpl.ExecuteTemplate(w, "addTaskForm", nil)
+}
+
+func addNewTask(w http.ResponseWriter, r *http.Request) {
+	task := r.FormValue("task")
+
+	if task == "" {
+		http.Error(w, "Task cannot be empty", http.StatusBadRequest)
+		return
+	}
+
+	query := "INSERT INTO tasks (task, done) VALUES ($1, $2)"
+
+	_, err := db.Exec(query, task, false)
+	if err != nil {
+		http.Error(w, "Failed to add task", http.StatusInternalServerError)
+		return
+	}
+
+	todos, _ := getTasks()
+	tmpl.ExecuteTemplate(w, "todoList", todos)
 }

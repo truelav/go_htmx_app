@@ -1,8 +1,9 @@
 {{ define "task" }}
 
     <li id="task-{{ .Id }}" class="m-2">
-        <span>{{ .Id }} - {{ .Task }}</span>
-        <button hx-get="/getEditTaskForm/{{ .Id }}" hx-target="#task-{{ .Id }}" hx-swap="outerHTML"> Edit </button>
+        <span class="text-decoration-{{ if .Done }}line-through{{ else }}none{{ end }}">{{ .Id }} - {{ .Task }}</span>
+        <button hx-get="/getEditTaskForm/{{ .Id }}" hx-target="#task-{{ .Id }}" hx-swap="outerHTML" class="btn btn-primary"> Edit </button>
+        <button hx-post="/deleteTask/{{ .Id }}" hx-target="#task-{{ .Id }}" hx-swap="outerHTML" class="btn btn-fail"> Delete </button>
     </li>
 
 {{ end }}

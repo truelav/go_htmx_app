@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"reflect"
 	"strings"
 
 	"github.com/gorilla/mux"
@@ -62,13 +63,13 @@ func main() {
 
 	gRouter.HandleFunc("/tasks", addNewTask).Methods("POST")
 
-	gRouter.HandleFunc("/editTask", editTask)
+	gRouter.HandleFunc("/editTask/{{.Id}}", editTask)
 
-	gRouter.HandleFunc("/getTaskForm", getTaskForm)
-
-	gRouter.HandleFunc("/cancelEdit/{{.ID}}", cancelEditTask)
+	gRouter.HandleFunc("/cancelEditTask/{{.Id}}", cancelEditTask)
 
 	gRouter.HandleFunc("/getEditTaskForm/{{Id}}", getEditTaskForm)
+
+	gRouter.HandleFunc("/getTaskForm", getTaskForm)
 
 	http.ListenAndServe(":8000", gRouter)
 }
@@ -88,15 +89,6 @@ func fetchTasks(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		panic(err)
 	}
-}
-
-func getTaskDB(taskId string) (Task, error) {
-
-	var task Task
-	query := "SELECT id, task, done FROM tasks WHERE id = $1"
-	err := db.QueryRow(query, taskId).Scan(&task.Id, &task.Task, &task.Done)
-
-	return task, err
 }
 
 func getTasksDB() ([]Task, error) {
@@ -126,6 +118,15 @@ func getTasksDB() ([]Task, error) {
 	return tasks, errDB
 }
 
+func getTaskDB(taskId string) (Task, error) {
+
+	var task Task
+	query := "SELECT id, task, done FROM tasks WHERE id = $1"
+	err := db.QueryRow(query, taskId).Scan(&task.Id, &task.Task, &task.Done)
+
+	return task, err
+}
+
 func getEditTaskForm(w http.ResponseWriter, r *http.Request) {
 	taskId := r.URL.Path[len("/getEditTaskForm/"):]
 
@@ -137,7 +138,7 @@ func getEditTaskForm(w http.ResponseWriter, r *http.Request) {
 	tmpl.ExecuteTemplate(w, "editTaskForm", task)
 }
 
-func getTaskItem(w http.ResponseWriter, r *http.Request) {
+func cancelEditTask(w http.ResponseWriter, r *http.Request) {
 	taskId := r.URL.Path[len("/cancelEditTask/"):]
 
 	task, err := getTaskDB(taskId)
@@ -149,16 +150,32 @@ func getTaskItem(w http.ResponseWriter, r *http.Request) {
 }
 
 func editTask(w http.ResponseWriter, r *http.Request) {
+	id := r.URL.Path[len("/editTask/"):]
 	task := r.FormValue("task")
-	taskId := r.FormValue("id")
-	done := r.FormValue("done")
-	taskIsDone := convertDoneToBool(done)
+	taskIsDone := r.FormValue("done")
 
-	fmt.Println(task, taskId, taskIsDone)
-}
+	done := convertDoneToBool(taskIsDone)
 
-func cancelEditTask(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Type of variable:", reflect.ValueOf(id).Kind(), id)
+	fmt.Println("Type of variable:", reflect.ValueOf(task).Kind(), task)
+	fmt.Println("Type of variable:", reflect.ValueOf(done).Kind(), done)
 
+	fmt.Println(id, task, done)
+
+	_, err := db.Exec("UPDATE tasks SET task = $1, done = $2 WHERE id = $3", task, done, id)
+	if err != nil {
+		http.Error(w, "Failed to update task", http.StatusInternalServerError)
+		return
+	}
+
+	var updatedTask Task
+	err = db.QueryRow("SELECT id, task, done FROM tasks WHERE id = $1", id).Scan(&updatedTask.Id, &updatedTask.Task, &updatedTask.Done)
+	if err != nil {
+		http.Error(w, "Failed to fetch updated task", http.StatusInternalServerError)
+		return
+	}
+
+	tmpl.ExecuteTemplate(w, "task", updatedTask)
 }
 
 func getTaskForm(w http.ResponseWriter, r *http.Request) {

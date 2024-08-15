@@ -65,6 +65,8 @@ func main() {
 
 	gRouter.HandleFunc("/editTask/{{.Id}}", editTask)
 
+	gRouter.HandleFunc("/deleteTask/{{.Id}}", deleteTask)
+
 	gRouter.HandleFunc("/cancelEditTask/{{.Id}}", cancelEditTask)
 
 	gRouter.HandleFunc("/getEditTaskForm/{{Id}}", getEditTaskForm)
@@ -200,6 +202,19 @@ func addNewTask(w http.ResponseWriter, r *http.Request) {
 
 	todos, _ := getTasksDB()
 	tmpl.ExecuteTemplate(w, "todoList", todos)
+}
+
+func deleteTask(w http.ResponseWriter, r *http.Request) {
+	id := r.URL.Path[len("/deleteTask/"):]
+
+	_, err := db.Exec("DELETE FROM tasks WHERE id = $1", id)
+	if err != nil {
+		http.Error(w, "Failed to delete task", http.StatusInternalServerError)
+		return
+	}
+
+	// Return an empty response to remove the task from the UI
+	w.WriteHeader(http.StatusOK)
 }
 
 func convertDoneToBool(isDone string) bool {

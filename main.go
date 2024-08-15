@@ -62,7 +62,13 @@ func main() {
 
 	gRouter.HandleFunc("/tasks", addNewTask).Methods("POST")
 
+	gRouter.HandleFunc("/editTask", editTask)
+
 	gRouter.HandleFunc("/getTaskForm", getTaskForm)
+
+	gRouter.HandleFunc("/cancelEdit/{{.ID}}", cancelEditTask)
+
+	gRouter.HandleFunc("/getEditTaskForm/{{Id}}", getEditTaskForm)
 
 	http.ListenAndServe(":8000", gRouter)
 }
@@ -72,7 +78,7 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func fetchTasks(w http.ResponseWriter, r *http.Request) {
-	todos, errDB := getTasks()
+	todos, errDB := getTasksDB()
 	if errDB != nil {
 		log.Fatal("Error fetching tasks: ", errDB)
 	}
@@ -84,7 +90,16 @@ func fetchTasks(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func getTasks() ([]Task, error) {
+func getTaskDB(taskId string) (Task, error) {
+
+	var task Task
+	query := "SELECT id, task, done FROM tasks WHERE id = $1"
+	err := db.QueryRow(query, taskId).Scan(&task.Id, &task.Task, &task.Done)
+
+	return task, err
+}
+
+func getTasksDB() ([]Task, error) {
 	query := "SELECT id, task, done FROM tasks"
 
 	rows, errDB := db.Query(query)
@@ -111,6 +126,41 @@ func getTasks() ([]Task, error) {
 	return tasks, errDB
 }
 
+func getEditTaskForm(w http.ResponseWriter, r *http.Request) {
+	taskId := r.URL.Path[len("/getEditTaskForm/"):]
+
+	task, err := getTaskDB(taskId)
+	if err != nil {
+		http.Error(w, "Task not found", http.StatusNotFound)
+	}
+
+	tmpl.ExecuteTemplate(w, "editTaskForm", task)
+}
+
+func getTaskItem(w http.ResponseWriter, r *http.Request) {
+	taskId := r.URL.Path[len("/cancelEditTask/"):]
+
+	task, err := getTaskDB(taskId)
+	if err != nil {
+		http.Error(w, "Task not found", http.StatusNotFound)
+	}
+
+	tmpl.ExecuteTemplate(w, "task", task)
+}
+
+func editTask(w http.ResponseWriter, r *http.Request) {
+	task := r.FormValue("task")
+	taskId := r.FormValue("id")
+	done := r.FormValue("done")
+	taskIsDone := convertDoneToBool(done)
+
+	fmt.Println(task, taskId, taskIsDone)
+}
+
+func cancelEditTask(w http.ResponseWriter, r *http.Request) {
+
+}
+
 func getTaskForm(w http.ResponseWriter, r *http.Request) {
 	tmpl.ExecuteTemplate(w, "addTaskForm", nil)
 }
@@ -131,17 +181,8 @@ func addNewTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	todos, _ := getTasks()
+	todos, _ := getTasksDB()
 	tmpl.ExecuteTemplate(w, "todoList", todos)
-}
-
-func editTask(w http.ResponseWriter, r *http.Request) {
-	task := r.FormValue("task")
-	taskId := r.FormValue("id")
-	done := r.FormValue("done")
-	taskIsDone := convertDoneToBool(done)
-
-	fmt.Println(task, taskId, taskIsDone)
 }
 
 func convertDoneToBool(isDone string) bool {

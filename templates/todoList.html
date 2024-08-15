@@ -1,8 +1,8 @@
 {{ define "todoList" }}
-    <p>List tasks</p>
+    <p>Task List :</p>
     <ul>
         {{ range .}}
-            <li>{{ .Task }}</li>
+            {{ template "task" . }}
         {{ end }}
     </ul>
 {{ end }}

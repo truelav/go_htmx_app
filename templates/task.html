@@ -1,0 +1,8 @@
+{{ define "task" }}
+
+    <li id="task-{{ .Id }}" class="m-2">
+        <span>{{ .Id }} - {{ .Task }}</span>
+        <button hx-get="/getEditTaskForm/{{ .Id }}" hx-target="#task-{{ .Id }}" hx-swap="outerHTML"> Edit </button>
+    </li>
+
+{{ end }}

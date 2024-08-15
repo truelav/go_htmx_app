@@ -1,0 +1,27 @@
+{{ define "editTaskForm" }}
+    <form hx-post="/editTask" hx-target="#task-{{ .Id }}" hx-swap="outerHTML">
+        <div class="row">
+            <div class="col">
+                <input type="text" name="task" value="{{ .Task }}" class="form-control"/>
+            </div>
+            <div class="col">
+                <label> Done / Undone</label>
+                <input type="checkbox" class="done-checkbox" name="done" {{ if .Done }} checked  {{ end }} />
+            </div>
+            <div class="col">
+                <button 
+                    class="btn btn-success"
+                    type="submit"
+                > Save Task 
+                </button>
+                <button
+                    class="btn btn-secondary"
+                    hx-get="/cancelEditTask/{{ .Id }}" 
+                    hx-target="#task-{{ .Id }}" 
+                    hx-swap="outerHTML"
+                > Cancel 
+                </button>
+            </div>
+        </div>
+    </form>
+{{ end }}

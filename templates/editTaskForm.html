@@ -6,10 +6,6 @@
                     <input type="text" name="task" value="{{ .Task }}" class="form-control"/>
                 </div>
                 <div class="col">
-                    <label> Done / Undone</label>
-                    <input type="checkbox" class="done-checkbox" name="done" {{ if .Done }} checked  {{ end }} />
-                </div>
-                <div class="col">
                     <button 
                         class="btn btn-success"
                         hx-post="/editTask/{{ .Id }}" 

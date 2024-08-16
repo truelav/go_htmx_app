@@ -1,0 +1,15 @@
+{{ define  "searchBar" }}
+
+    <form class="mt-2 mb-2">
+        <input 
+            type="text" 
+            name="searchQuery" 
+            placeholder="Search tasks..." 
+            hx-get="/searchTask"
+            hx-target="#todoList" 
+            hx-trigger="keyup changed delay:0.5s"
+            class="form-control"
+        />
+    </form>
+
+{{ end }}

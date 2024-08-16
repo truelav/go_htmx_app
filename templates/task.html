@@ -1,9 +1,40 @@
 {{ define "task" }}
 
     <li id="task-{{ .Id }}" class="m-2">
-        <span class="text-decoration-{{ if .Done }}line-through{{ else }}none{{ end }}">{{ .Id }} - {{ .Task }}</span>
-        <button hx-get="/getEditTaskForm/{{ .Id }}" hx-target="#task-{{ .Id }}" hx-swap="outerHTML" class="btn btn-primary"> Edit </button>
-        <button hx-post="/deleteTask/{{ .Id }}" hx-target="#task-{{ .Id }}" hx-swap="outerHTML" class="btn btn-danger"> Delete </button>
+        <div class="row">
+            <div class="col-1">
+                <input 
+                    name="done" 
+                    type="checkbox" 
+                    class="done-checkbox" 
+                    hx-post="/toggleTask/{{ .Id }}" 
+                    hx-target="#task-{{ .Id }}" 
+                    hx-swap="outerHTML" 
+                    {{ if .Done }} checked  {{ end }} 
+                />
+            </div>
+            <div class="col-8">
+                <span class="text-decoration-{{ if .Done }}line-through{{ else }}none{{ end }}">{{ .Id }} - {{ .Task }}</span>
+            </div>
+            <div class="col-3">
+                <button 
+                    hx-get="/getEditTaskForm/{{ .Id }}" 
+                    hx-target="#task-{{ .Id }}" 
+                    hx-swap="outerHTML" 
+                    class="btn btn-primary"
+                > 
+                    Edit 
+                </button>
+                <button 
+                    hx-post="/deleteTask/{{ .Id }}" 
+                    hx-target="#task-{{ .Id }}" 
+                    hx-swap="outerHTML" 
+                    class="btn btn-danger"
+                    > 
+                    Delete 
+                </button>
+            </div>
+        </div>
     </li>
 
 {{ end }}

@@ -1,18 +1,20 @@
 {{ define "addNewTaskForm" }}
     <form class="mt-2 mb-2">
         <div class="row">
-            <div>
-                <p>Add New Task</p>
-            </div>
             <div class="col mt-auto">
-                <input type="text" name="task" class="form-control"/>
+                <input
+                    placeholder="Add New Task"  
+                    type="text" 
+                    name="task" 
+                    class="form-control"
+                />
             </div>
             <div class="col mt-auto">
                 <button 
                     class="btn btn-primary"
                     hx-post="/tasks"
                     hx-target="#todoList"
-                >Add Task</button>
+                > + </button>
             </div>
         </div>
     </form>

@@ -7,7 +7,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"reflect"
 	"strings"
 
 	"github.com/gorilla/mux"
@@ -57,6 +56,8 @@ func main() {
 	initDB()
 	defer db.Close()
 
+	gRouter.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
+
 	gRouter.HandleFunc("/", homeHandler)
 
 	gRouter.HandleFunc("/tasks", fetchTasks).Methods("GET")
@@ -65,9 +66,13 @@ func main() {
 
 	gRouter.HandleFunc("/editTask/{{.Id}}", editTask)
 
+	gRouter.HandleFunc("/toggleTask/{{.Id}}", toggleTaskDone)
+
 	gRouter.HandleFunc("/deleteTask/{{.Id}}", deleteTask)
 
 	gRouter.HandleFunc("/cancelEditTask/{{.Id}}", cancelEditTask)
+
+	gRouter.HandleFunc("/searchTask", searchTask)
 
 	gRouter.HandleFunc("/getEditTaskForm/{{Id}}", getEditTaskForm)
 
@@ -91,6 +96,7 @@ func fetchTasks(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		panic(err)
 	}
+	// fmt.Println(todos)
 }
 
 func getTasksDB() ([]Task, error) {
@@ -151,6 +157,28 @@ func cancelEditTask(w http.ResponseWriter, r *http.Request) {
 	tmpl.ExecuteTemplate(w, "task", task)
 }
 
+func toggleTaskDone(w http.ResponseWriter, r *http.Request) {
+	id := r.URL.Path[len("/toggleTask/"):]
+	taskIsDone := r.FormValue("done")
+	done := convertDoneToBool(taskIsDone)
+
+	_, err := db.Exec("UPDATE tasks SET done = $1 WHERE id = $2", done, id)
+	if err != nil {
+		http.Error(w, "Failed to update task", http.StatusInternalServerError)
+		return
+	}
+
+	var updatedTask Task
+	err = db.QueryRow("SELECT id, task, done  FROM tasks WHERE id = $1", id).Scan(&updatedTask.Id, &updatedTask.Task, &updatedTask.Done)
+	if err != nil {
+		http.Error(w, "Failed to fetch updated task", http.StatusInternalServerError)
+		return
+	}
+
+	fmt.Println(updatedTask)
+	tmpl.ExecuteTemplate(w, "task", updatedTask)
+}
+
 func editTask(w http.ResponseWriter, r *http.Request) {
 	id := r.URL.Path[len("/editTask/"):]
 	task := r.FormValue("task")
@@ -158,11 +186,11 @@ func editTask(w http.ResponseWriter, r *http.Request) {
 
 	done := convertDoneToBool(taskIsDone)
 
-	fmt.Println("Type of variable:", reflect.ValueOf(id).Kind(), id)
-	fmt.Println("Type of variable:", reflect.ValueOf(task).Kind(), task)
-	fmt.Println("Type of variable:", reflect.ValueOf(done).Kind(), done)
+	// fmt.Println("Type of variable:", reflect.ValueOf(id).Kind(), id)
+	// fmt.Println("Type of variable:", reflect.ValueOf(task).Kind(), task)
+	// fmt.Println("Type of variable:", reflect.ValueOf(done).Kind(), done)
 
-	fmt.Println(id, task, done)
+	// fmt.Println(id, task, done)
 
 	_, err := db.Exec("UPDATE tasks SET task = $1, done = $2 WHERE id = $3", task, done, id)
 	if err != nil {
@@ -215,6 +243,34 @@ func deleteTask(w http.ResponseWriter, r *http.Request) {
 
 	// Return an empty response to remove the task from the UI
 	w.WriteHeader(http.StatusOK)
+}
+
+func searchTask(w http.ResponseWriter, r *http.Request) {
+	query := r.FormValue("searchQuery")
+	lowercaseQuery := strings.ToLower(query)
+	// fmt.Println(lowercaseQuery)
+
+	rows, err := db.Query("SELECT id, task, done FROM tasks WHERE LOWER(task) LIKE '%' || $1 || '%'", lowercaseQuery)
+	if err != nil {
+		http.Error(w, "Failed to find task", http.StatusInternalServerError)
+	}
+
+	defer rows.Close()
+
+	var todos []Task
+	for rows.Next() {
+		var task Task
+		if err := rows.Scan(&task.Id, &task.Task, &task.Done); err != nil {
+			http.Error(w, "Failed to scan task", http.StatusInternalServerError)
+			return
+		}
+		todos = append(todos, task)
+	}
+
+	err = tmpl.ExecuteTemplate(w, "todoList", todos)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 }
 
 func convertDoneToBool(isDone string) bool {

@@ -6,9 +6,6 @@ import (
 	"log"
 	"net/http"
 	"strings"
-
-	"github.com/gorilla/mux"
-	_ "github.com/lib/pq"
 )
 
 type Task struct {
@@ -25,34 +22,10 @@ func init() {
 }
 
 func main() {
-
-	gRouter := mux.NewRouter()
-
 	initDB()
 	defer db.Close()
 
-	gRouter.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
-
-	gRouter.HandleFunc("/", homeHandler)
-
-	gRouter.HandleFunc("/tasks", fetchTasks).Methods("GET")
-
-	gRouter.HandleFunc("/tasks", addNewTask).Methods("POST")
-
-	gRouter.HandleFunc("/editTask/{{.Id}}", editTask)
-
-	gRouter.HandleFunc("/toggleTask/{{.Id}}", toggleTaskDone)
-
-	gRouter.HandleFunc("/deleteTask/{{.Id}}", deleteTask)
-
-	gRouter.HandleFunc("/cancelEditTask/{{.Id}}", cancelEditTask)
-
-	gRouter.HandleFunc("/searchTask", searchTask)
-
-	gRouter.HandleFunc("/getEditTaskForm/{{Id}}", getEditTaskForm)
-
-	gRouter.HandleFunc("/getTaskForm", getTaskForm)
-
+	gRouter := InitRoutes()
 	http.ListenAndServe(":8000", gRouter)
 }
 

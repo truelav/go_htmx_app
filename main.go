@@ -186,12 +186,6 @@ func editTask(w http.ResponseWriter, r *http.Request) {
 
 	done := convertDoneToBool(taskIsDone)
 
-	// fmt.Println("Type of variable:", reflect.ValueOf(id).Kind(), id)
-	// fmt.Println("Type of variable:", reflect.ValueOf(task).Kind(), task)
-	// fmt.Println("Type of variable:", reflect.ValueOf(done).Kind(), done)
-
-	// fmt.Println(id, task, done)
-
 	_, err := db.Exec("UPDATE tasks SET task = $1, done = $2 WHERE id = $3", task, done, id)
 	if err != nil {
 		http.Error(w, "Failed to update task", http.StatusInternalServerError)

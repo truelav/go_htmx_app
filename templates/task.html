@@ -1,8 +1,8 @@
 {{ define "task" }}
 
-    <li id="task-{{ .Id }}" class="m-2">
-        <div class="row">
-            <div class="col-1">
+    <li id="task-{{ .Id }}" class="taskItem m-2">
+        <div class="row p-2">
+            <div class="col-1 glowing-border-{{ if .Done }}green{{ else }}gray{{ end }}">
                 <input 
                     name="done" 
                     type="checkbox" 
@@ -14,7 +14,11 @@
                 />
             </div>
             <div class="col-8">
-                <span class="text-decoration-{{ if .Done }}line-through{{ else }}none{{ end }}">{{ .Id }} - {{ .Task }}</span>
+                <span 
+                    class="text-decoration-{{ if .Done }}line-through{{ else }}none{{ end }}"
+                >
+                    {{ .Id }} - {{ .Task }}
+                </span>
             </div>
             <div class="col-3">
                 <button 

@@ -1,16 +1,13 @@
 package main
 
 import (
-	"database/sql"
 	"fmt"
 	"html/template"
 	"log"
 	"net/http"
-	"os"
 	"strings"
 
 	"github.com/gorilla/mux"
-	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 )
 
@@ -20,33 +17,11 @@ type Task struct {
 	Done bool
 }
 
-var db *sql.DB
+// var db *sql.DB
 var tmpl *template.Template
 
 func init() {
 	tmpl, _ = template.ParseGlob("templates/*.html")
-}
-
-func initDB() {
-	var err error
-
-	errENV := godotenv.Load(".env")
-	if errENV != nil {
-		log.Fatal("Error with .env loading", errENV)
-	}
-	db_connection_string := os.Getenv("DB_CONNECTION_STRING")
-
-	db, err = sql.Open("postgres", db_connection_string)
-
-	if err != nil {
-		log.Fatal("Error Connecting to DB start", err)
-	}
-
-	if err = db.Ping(); err != nil {
-		log.Fatal("Error Connecting to DB end", err)
-	}
-
-	fmt.Println("db connected succes")
 }
 
 func main() {

@@ -1,43 +1,41 @@
 {{ define "task" }}
 
-    <li id="task-{{ .Id }}" class="taskItem m-2">
-        <div class="row p-2">
-            <div class="col-1 glowing-border-{{ if .Done }}green{{ else }}gray{{ end }}">
-                <input 
-                    name="done" 
-                    type="checkbox" 
-                    class="done-checkbox" 
-                    hx-post="/toggleTask/{{ .Id }}" 
-                    hx-target="#task-{{ .Id }}" 
-                    hx-swap="outerHTML" 
-                    {{ if .Done }} checked  {{ end }} 
-                />
-            </div>
-            <div class="col-8">
-                <span 
-                    class="text-decoration-{{ if .Done }}line-through{{ else }}none{{ end }}"
-                >
-                    {{ .Id }} - {{ .Task }}
-                </span>
-            </div>
-            <div class="col-3">
-                <button 
-                    hx-get="/getEditTaskForm/{{ .Id }}" 
-                    hx-target="#task-{{ .Id }}" 
-                    hx-swap="outerHTML" 
-                    class="btn btn-primary"
+    <li id="task-{{ .Id }}" class="grid grid-cols-12 gap-4 taskItem m-2">
+        <div class="col-span-1 glowing-border-{{ if .Done }}green{{ else }}gray{{ end }}">
+            <input 
+                name="done" 
+                type="checkbox" 
+                class="done-checkbox" 
+                hx-post="/toggleTask/{{ .Id }}" 
+                hx-target="#task-{{ .Id }}" 
+                hx-swap="outerHTML" 
+                {{ if .Done }} checked  {{ end }} 
+            />
+        </div>
+        <div class="col-span-8">
+            <span 
+                class="text-decoration-{{ if .Done }}line-through{{ else }}none{{ end }}"
+            >
+                {{ .Id }} - {{ .Task }}
+            </span>
+        </div>
+        <div class="col-span-3">
+            <button 
+                hx-get="/getEditTaskForm/{{ .Id }}" 
+                hx-target="#task-{{ .Id }}" 
+                hx-swap="outerHTML" 
+                class="btn btn-primary"
+            > 
+                Edit 
+            </button>
+            <button 
+                hx-post="/deleteTask/{{ .Id }}" 
+                hx-target="#task-{{ .Id }}" 
+                hx-swap="outerHTML" 
+                class="btn btn-danger"
                 > 
-                    Edit 
-                </button>
-                <button 
-                    hx-post="/deleteTask/{{ .Id }}" 
-                    hx-target="#task-{{ .Id }}" 
-                    hx-swap="outerHTML" 
-                    class="btn btn-danger"
-                    > 
-                    Delete 
-                </button>
-            </div>
+                Delete 
+            </button>
         </div>
     </li>
 

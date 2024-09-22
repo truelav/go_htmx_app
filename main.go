@@ -3,7 +3,6 @@ package main
 import (
 	"html/template"
 	"net/http"
-	"strings"
 )
 
 var tmpl *template.Template
@@ -22,19 +21,4 @@ func main() {
 
 func homeHandler(w http.ResponseWriter, r *http.Request) {
 	tmpl.ExecuteTemplate(w, "index.html", nil)
-}
-
-func convertDoneToBool(isDone string) bool {
-	var taskIsDone bool
-
-	switch strings.ToLower(isDone) {
-	case "yes", "on":
-		taskIsDone = true
-	case "no", "off":
-		taskIsDone = false
-	default:
-		taskIsDone = false
-	}
-
-	return taskIsDone
 }

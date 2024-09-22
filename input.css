@@ -1,0 +1,7 @@
+/* input.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* DaisyUI components (optional but usually enabled by default) */
+@import "daisyui";

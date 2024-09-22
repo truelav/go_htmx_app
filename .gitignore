@@ -26,3 +26,4 @@ tmp
 
 # task file temporary files
 .task
+.env

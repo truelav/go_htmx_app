@@ -4,23 +4,14 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"github.com/labstack/echo/v4"
 )
-
-func createServer() {
-	e := echo.New()
-	e.GET("/", func(c echo.Context) error {
-		return c.String(http.StatusOK, "Hello, World!")
-	})
-	e.Logger.Fatal(e.Start(":1323"))
-}
 
 func InitRoutes() *mux.Router {
 	gRouter := mux.NewRouter()
 
 	gRouter.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 
-	gRouter.HandleFunc("/", homeHandler)
+	gRouter.HandleFunc("/", homeHandler).Methods("GET")
 
 	gRouter.HandleFunc("/tasks", fetchTasks).Methods("GET")
 

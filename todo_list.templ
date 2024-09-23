@@ -1,0 +1,21 @@
+package main
+
+templ.Component TodoList(tasks []Task) {
+    <div>
+        <form method="POST" action="/add">
+            <input type="text" name="task" placeholder="New Task" required />
+            <button type="submit">Add Task</button>
+        </form>
+
+        <ul>
+            {{ for task := range tasks }}
+                <li>
+                    {{ task.Name }}
+                    <form method="POST" action="/delete/{{ task.ID }}" style="display:inline;">
+                        <button type="submit">Delete</button>
+                    </form>
+                </li>
+            {{ end }}
+        </ul>
+    </div>
+}

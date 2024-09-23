@@ -1,0 +1,15 @@
+package main 
+
+templ.Component Layout(title string, content templ.Component) {
+    <html>
+        <head>
+            <title>{{ title }}</title>
+        </head>
+        <body>
+            <div class="container">
+                <h1>{{ title }}</h1>
+                {{ content }}
+            </div>
+        </body>
+    </html>
+}

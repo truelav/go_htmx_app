@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -18,8 +19,8 @@ type Task struct {
 }
 
 func main() {
-	initDB()
-	defer db.Close()
+	// initDB()
+	// defer db.Close()
 
 	// gRouter := InitRoutes()
 	gRouter := mux.NewRouter()
@@ -35,5 +36,7 @@ func main() {
 // }
 
 func homeHandler(w http.ResponseWriter, r *http.Request) {
-	views.Home().Render(r.Context(), w)
+	compButton := ExpandButton("Expand Comp")
+	component := Layout("Whatever", compButton)
+	component.Render(context.Background(), w)
 }

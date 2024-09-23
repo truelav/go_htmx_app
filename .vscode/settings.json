@@ -1,5 +1,12 @@
 {
-    "cSpell.words": [
-      "templ"
-    ]
+  "cSpell.words": [
+    "templ"
+  ],
+  "tailwindCSS.includeLanguages": {
+    "templ": "html"
+  },
+  "editor.formatOnSave": true,
+  "[templ]": {
+    "editor.defaultFormatter": "a-h.templ"
   }
+}

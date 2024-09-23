@@ -1,14 +1,32 @@
 package main 
 
-templ.Component Layout(title string, content templ.Component) {
-    <html>
+
+templ ExpandButton(label string) {
+    <button 
+      class="btn btn-primary glass no-animation" 
+      @click="open = true" 
+      x-init="$nextTick(() => $el.classList.remove('no-animation'))">
+      { label }
+    </button>
+}
+
+templ Layout(title string, compButton templ.Component) {
+    <html data-theme="sailrite">
         <head>
-            <title>{{ title }}</title>
+            <link href="/static/output.css" rel="stylesheet">
+            <script src="//unpkg.com/alpinejs" defer></script>
+            <title>{ title }</title>
+            <style>[x-cloak] { display: none !important; }</style>
         </head>
         <body>
-            <div class="container">
-                <h1>{{ title }}</h1>
-                {{ content }}
+            <div x-data="{ open: false }">
+                <h1>{ title }</h1>
+                <div x-cloak x-show="open">Content...</div>
+                @compButton
+            </div>
+            <div x-data="{ open: false }">
+                <div x-cloak x-show="open">Content 2...</div>
+                @compButton
             </div>
         </body>
     </html>

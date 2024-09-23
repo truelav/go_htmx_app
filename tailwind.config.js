@@ -13,5 +13,9 @@ export const plugins = [
 ];
 
 export const daisyui = {
-  themes: ["light", "dark"]
+  themes: [{
+    sailrite: {
+      "primary": "teal"
+    }
+  }, "cupcake"]
 }
